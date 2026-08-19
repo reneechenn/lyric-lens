@@ -1,42 +1,58 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { checkLogin, getNowPlaying, fetchLyrics, translateText, logout } from './api';
+import {
+  isLoggedIn, saveTokens, clearTokens, getLoginUrl,
+  getNowPlaying, fetchLyrics, translateText,
+} from './api';
 import LANGUAGES from './LANGUAGES';
 import './App.css';
 
-const POLL_INTERVAL_MS = 10_000; // check now-playing every 10 seconds
+const POLL_INTERVAL_MS = 10_000;
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [track, setTrack] = useState(null);       // current Spotify track
-  const [lyrics, setLyrics] = useState('');        // original lyrics
-  const [translated, setTranslated] = useState(''); // translated lyrics
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn());
+  const [track, setTrack] = useState(null);
+  const [lyrics, setLyrics] = useState('');
+  const [translated, setTranslated] = useState('');
   const [targetLang, setTargetLang] = useState('en');
-  const [status, setStatus] = useState('idle');    // idle | loading | translating | error
+  const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Keep a ref so the poll callback can check whether the track changed
   const lastTrackIdRef = useRef(null);
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
+  // ── On mount: check for tokens in the URL hash (after Spotify redirect) ──
 
   useEffect(() => {
-    checkLogin().then(({ loggedIn }) => setLoggedIn(loggedIn));
+    const hash = window.location.hash.substring(1);
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get('access_token');
+
+    if (accessToken) {
+      saveTokens({
+        access_token: accessToken,
+        refresh_token: params.get('refresh_token'),
+        expires_in: params.get('expires_in'),
+      });
+      setLoggedIn(true);
+      // Clean the URL so tokens aren't visible
+      window.history.replaceState(null, '', '/');
+    }
   }, []);
 
   const handleLogin = () => {
-    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-    window.location.href = `${apiUrl}/auth/login`;
+    window.location.href = getLoginUrl();
   };
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    clearTokens();
     setLoggedIn(false);
     setTrack(null);
     setLyrics('');
     setTranslated('');
   };
 
-  // ── Fetch lyrics + translate whenever track or language changes ───────────
+  // ── Fetch lyrics + translate ──────────────────────────────────────────────
 
   const loadLyricsAndTranslate = useCallback(async (trackData) => {
     setStatus('loading');
@@ -52,7 +68,7 @@ export default function App() {
 
       if (!found || !rawLyrics) {
         setStatus('error');
-        setErrorMsg("Lyrics not found for this song.");
+        setErrorMsg('Lyrics not found for this song.');
         return;
       }
 
@@ -69,7 +85,7 @@ export default function App() {
     }
   }, [targetLang]);
 
-  // ── Poll Spotify for the now-playing track ────────────────────────────────
+  // ── Poll Spotify ──────────────────────────────────────────────────────────
 
   const pollNowPlaying = useCallback(async () => {
     try {
@@ -80,14 +96,16 @@ export default function App() {
         return;
       }
 
-      // Only reload lyrics if the song changed
       if (data.id !== lastTrackIdRef.current) {
         lastTrackIdRef.current = data.id;
         setTrack(data);
         await loadLyricsAndTranslate(data);
       }
-    } catch {
-      // Silently ignore poll errors (e.g. brief network blip)
+    } catch (err) {
+      if (err.response?.status === 401) {
+        clearTokens();
+        setLoggedIn(false);
+      }
     }
   }, [loadLyricsAndTranslate]);
 
@@ -99,7 +117,7 @@ export default function App() {
     return () => clearInterval(interval);
   }, [loggedIn, pollNowPlaying]);
 
-  // Re-translate when the user picks a different language (without re-fetching lyrics)
+  // Re-translate when language changes
   useEffect(() => {
     if (!lyrics) return;
     setStatus('translating');
@@ -114,7 +132,7 @@ export default function App() {
         setErrorMsg('Translation failed.');
       });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetLang]); // intentionally only re-runs when language changes
+  }, [targetLang]);
 
   // ── Render ────────────────────────────────────────────────────────────────
 

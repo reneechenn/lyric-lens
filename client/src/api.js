@@ -1,24 +1,69 @@
-/**
- * All HTTP calls to the LyricLens backend live here.
- * The base URL points to the Express server running on port 3001.
- */
-
 import axios from 'axios';
 
-const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001',
-  withCredentials: true,
-});
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-export const checkLogin = () => api.get('/auth/me').then((r) => r.data);
+const api = axios.create({ baseURL: API_URL });
 
-export const getNowPlaying = () =>
-  api.get('/spotify/now-playing').then((r) => r.data);
+// ── Token management via localStorage ──────────────────────────────
+
+export function saveTokens({ access_token, refresh_token, expires_in }) {
+  localStorage.setItem('sp_access_token', access_token);
+  localStorage.setItem('sp_refresh_token', refresh_token);
+  localStorage.setItem('sp_expires_at', String(Date.now() + Number(expires_in) * 1000));
+}
+
+export function getAccessToken() {
+  return localStorage.getItem('sp_access_token');
+}
+
+export function isLoggedIn() {
+  return !!getAccessToken();
+}
+
+export function clearTokens() {
+  localStorage.removeItem('sp_access_token');
+  localStorage.removeItem('sp_refresh_token');
+  localStorage.removeItem('sp_expires_at');
+}
+
+export function getLoginUrl() {
+  return `${API_URL}/auth/login`;
+}
+
+// ── Spotify API calls (direct, using the stored token) ─────────────
+
+function spotifyHeaders() {
+  return { Authorization: `Bearer ${getAccessToken()}` };
+}
+
+export async function getNowPlaying() {
+  const { data, status } = await axios.get(
+    'https://api.spotify.com/v1/me/player/currently-playing',
+    { headers: spotifyHeaders(), validateStatus: (s) => s < 500 }
+  );
+
+  if (status === 204 || !data || !data.item) {
+    return { playing: false };
+  }
+
+  const track = data.item;
+  return {
+    playing: true,
+    id: track.id,
+    title: track.name,
+    artist: track.artists.map((a) => a.name).join(', '),
+    album: track.album.name,
+    albumArt: track.album.images[0]?.url ?? null,
+    progressMs: data.progress_ms,
+    durationMs: track.duration_ms,
+    spotifyUrl: track.external_urls.spotify,
+  };
+}
+
+// ── Lyrics & translation (still go through our backend) ────────────
 
 export const fetchLyrics = (artist, title) =>
   api.get('/lyrics', { params: { artist, title } }).then((r) => r.data);
 
 export const translateText = (text, targetLang) =>
   api.post('/translate', { text, targetLang }).then((r) => r.data);
-
-export const logout = () => api.get('/auth/logout');

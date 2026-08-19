@@ -62,12 +62,14 @@ router.get('/callback', async (req, res) => {
       }
     );
 
-    // Store tokens in the server session (never expose client_secret to browser)
-    req.session.accessToken = data.access_token;
-    req.session.refreshToken = data.refresh_token;
-    req.session.expiresAt = Date.now() + data.expires_in * 1000;
+    // Pass tokens to the frontend via URL hash (never exposed to server logs)
+    const params = new URLSearchParams({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_in: data.expires_in,
+    });
 
-    res.redirect(CLIENT_URL);
+    res.redirect(`${CLIENT_URL}#${params}`);
   } catch (err) {
     console.error('Auth callback error:', err.response?.data || err.message);
     res.redirect(`${CLIENT_URL}?error=auth_failed`);

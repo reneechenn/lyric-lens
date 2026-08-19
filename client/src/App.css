@@ -1,0 +1,210 @@
+/* ── Global reset & fonts ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #0d0d14;
+  color: #e8e8f0;
+  min-height: 100vh;
+}
+
+/* ── Splash / login screen ────────────────────────────────────────── */
+.splash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0d0d14 0%, #1a1a2e 100%);
+}
+
+.splash-card {
+  text-align: center;
+  padding: 3rem 2.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1.5rem;
+  max-width: 440px;
+  width: 90%;
+}
+
+.splash-card h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.5px;
+}
+
+.splash-card p {
+  color: #a0a0b8;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* ── Spotify green button ─────────────────────────────────────────── */
+.btn-spotify {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: #1db954;
+  color: #000;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.btn-spotify:hover { background: #1ed760; transform: translateY(-1px); }
+
+/* ── App shell ────────────────────────────────────────────────────── */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.logo { font-size: 1.3rem; font-weight: 700; }
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.header-right label { color: #a0a0b8; font-size: 0.9rem; }
+
+.header-right select {
+  padding: 0.4rem 0.75rem;
+  background: #1a1a2e;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 0.5rem;
+  color: #e8e8f0;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-logout {
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 9999px;
+  color: #a0a0b8;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.btn-logout:hover { border-color: #fff; color: #fff; }
+
+/* ── Main content ─────────────────────────────────────────────────── */
+.main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  color: #a0a0b8;
+  font-size: 1.1rem;
+}
+
+/* ── Now playing bar ──────────────────────────────────────────────── */
+.now-playing {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.album-art {
+  width: 72px;
+  height: 72px;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.track-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.track-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.track-title:hover { text-decoration: underline; }
+
+.track-artist { color: #a0a0b8; font-size: 0.95rem; }
+.track-album  { color: #6c6c88; font-size: 0.85rem; }
+
+/* ── Status messages ──────────────────────────────────────────────── */
+.status-msg {
+  text-align: center;
+  padding: 2rem;
+  color: #a0a0b8;
+  font-style: italic;
+}
+.status-msg.error { color: #ff6b6b; font-style: normal; }
+
+/* ── Lyrics side-by-side ──────────────────────────────────────────── */
+.lyrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  .lyrics-grid { grid-template-columns: 1fr; }
+}
+
+.lyrics-col {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.lyrics-col h2 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #1db954;
+  margin-bottom: 1rem;
+}
+
+.lyrics-col pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: #d8d8e8;
+}

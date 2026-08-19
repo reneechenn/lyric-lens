@@ -11,10 +11,20 @@ const translateRouter = require('./routes/translate');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const CLIENT_URL = process.env.CLIENT_URL || null;
+
+const DEV_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: (origin, callback) => {
+    const allowed = CLIENT_URL ? [CLIENT_URL] : DEV_ORIGINS;
+    if (!origin || allowed.includes(origin)) return callback(null, true);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
+
+app.set('trust proxy', 1);
 
 app.use(express.json());
 
@@ -23,7 +33,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // set true in production with HTTPS
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     maxAge: 1000 * 60 * 60, // 1 hour
   },
 }));

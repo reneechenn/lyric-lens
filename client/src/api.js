@@ -6,8 +6,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:3001',
-  withCredentials: true, // send the session cookie
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3001',
+  withCredentials: true,
 });
 
 export const checkLogin = () => api.get('/auth/me').then((r) => r.data);

@@ -15,6 +15,7 @@ const {
   SPOTIFY_CLIENT_ID,
   SPOTIFY_CLIENT_SECRET,
   SPOTIFY_REDIRECT_URI,
+  CLIENT_URL = 'http://localhost:3000',
 } = process.env;
 
 const SCOPES = [
@@ -38,7 +39,7 @@ router.get('/callback', async (req, res) => {
   const { code, error } = req.query;
 
   if (error) {
-    return res.redirect(`http://localhost:3000?error=${error}`);
+    return res.redirect(`${CLIENT_URL}?error=${error}`);
   }
 
   try {
@@ -66,10 +67,10 @@ router.get('/callback', async (req, res) => {
     req.session.refreshToken = data.refresh_token;
     req.session.expiresAt = Date.now() + data.expires_in * 1000;
 
-    res.redirect('http://localhost:3000');
+    res.redirect(CLIENT_URL);
   } catch (err) {
     console.error('Auth callback error:', err.response?.data || err.message);
-    res.redirect('http://localhost:3000?error=auth_failed');
+    res.redirect(`${CLIENT_URL}?error=auth_failed`);
   }
 });
 

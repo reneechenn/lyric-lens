@@ -8,7 +8,7 @@ Auto-translate any song you're listening to on Spotify into a language of your c
 
 1. Go to <https://developer.spotify.com/dashboard>
 2. Click **Create app**
-3. Set the **Redirect URI** to `http://localhost:3001/auth/callback`
+3. Set the **Redirect URI** to `http://127.0.0.1:3001/auth/callback`
 4. Copy your **Client ID** and **Client Secret**
 
 ### 2. Configure the backend

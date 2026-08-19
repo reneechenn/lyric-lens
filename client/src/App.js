@@ -24,7 +24,8 @@ export default function App() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = 'http://localhost:3001/auth/login';
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+    window.location.href = `${apiUrl}/auth/login`;
   };
 
   const handleLogout = async () => {

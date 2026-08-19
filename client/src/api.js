@@ -60,7 +60,7 @@ export async function getNowPlaying() {
   };
 }
 
-// ── Lyrics & translation (still go through our backend) ────────────
+// ── Lyrics & translation (go through our backend) ──────────────────
 
 export const fetchLyrics = (artist, title) =>
   api.get('/lyrics', { params: { artist, title } }).then((r) => r.data);

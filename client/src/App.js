@@ -205,7 +205,11 @@ export default function App() {
               <div className="playback-controls">
                 <button
                   className="ctrl-btn"
-                  onClick={() => setPlayback('prev')}
+                  onClick={async () => {
+                    await setPlayback('prev');
+                    lastTrackIdRef.current = null;
+                    setTimeout(pollNowPlaying, 500);
+                  }}
                   title="Previous"
                 >⏮</button>
                 <button
@@ -219,7 +223,11 @@ export default function App() {
                 >{isPlaying ? '⏸' : '▶'}</button>
                 <button
                   className="ctrl-btn"
-                  onClick={() => setPlayback('next')}
+                  onClick={async () => {
+                    await setPlayback('next');
+                    lastTrackIdRef.current = null;
+                    setTimeout(pollNowPlaying, 500);
+                  }}
                   title="Next"
                 >⏭</button>
               </div>

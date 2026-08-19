@@ -21,6 +21,7 @@ const {
 const SCOPES = [
   'user-read-currently-playing',
   'user-read-playback-state',
+  'user-modify-playback-state',
 ].join(' ');
 
 // Step 1: redirect user to Spotify's login page

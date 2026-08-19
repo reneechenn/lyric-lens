@@ -13,12 +13,17 @@ const PORT = process.env.PORT || 3001;
 
 const CLIENT_URL = process.env.CLIENT_URL || null;
 
-const DEV_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000'];
+const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+];
+if (CLIENT_URL) ALLOWED_ORIGINS.push(CLIENT_URL.replace(/\/$/, ''));
 
 app.use(cors({
   origin: (origin, callback) => {
-    const allowed = CLIENT_URL ? [CLIENT_URL] : DEV_ORIGINS;
-    if (!origin || allowed.includes(origin)) return callback(null, true);
+    if (!origin) return callback(null, true);
+    const clean = origin.replace(/\/$/, '');
+    if (ALLOWED_ORIGINS.includes(clean)) return callback(null, true);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: true,

@@ -1,4 +1,4 @@
-# 🎵 LyricLens
+# LyricLens
 
 Auto-translate any song you're listening to on Spotify into a language of your choice — side-by-side with the original lyrics.
 

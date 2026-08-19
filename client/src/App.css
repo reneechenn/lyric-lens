@@ -165,6 +165,41 @@ body {
 .track-artist { color: #a0a0b8; font-size: 0.95rem; }
 .track-album  { color: #6c6c88; font-size: 0.85rem; }
 
+/* ── Playback controls ────────────────────────────────────────────── */
+.playback-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.ctrl-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50%;
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1rem;
+  color: #e8e8f0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.1s;
+}
+.ctrl-btn:hover { background: rgba(255,255,255,0.15); transform: scale(1.08); }
+
+.ctrl-main {
+  width: 2.8rem;
+  height: 2.8rem;
+  font-size: 1.1rem;
+  background: #1db954;
+  border-color: #1db954;
+  color: #000;
+}
+.ctrl-main:hover { background: #1ed760; border-color: #1ed760; }
+
 /* ── Status messages ──────────────────────────────────────────────── */
 .status-msg {
   text-align: center;

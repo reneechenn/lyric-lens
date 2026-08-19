@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   isLoggedIn, saveTokens, clearTokens, getLoginUrl,
-  getNowPlaying, fetchLyrics, translateText,
+  getNowPlaying, fetchLyrics, translateText, setPlayback,
 } from './api';
 import LANGUAGES from './LANGUAGES';
 import './App.css';
@@ -11,6 +11,7 @@ const POLL_INTERVAL_MS = 10_000;
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
   const [track, setTrack] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [lyrics, setLyrics] = useState('');
   const [translated, setTranslated] = useState('');
   const [targetLang, setTargetLang] = useState('en');
@@ -93,8 +94,11 @@ export default function App() {
 
       if (!data.playing) {
         setTrack(null);
+        setIsPlaying(false);
         return;
       }
+
+      setIsPlaying(data.isPlaying ?? true);
 
       if (data.id !== lastTrackIdRef.current) {
         lastTrackIdRef.current = data.id;
@@ -140,7 +144,7 @@ export default function App() {
     return (
       <div className="splash">
         <div className="splash-card">
-          <h1>🎵 LyricLens</h1>
+          <h1>LyricLens</h1>
           <p>Translate any song you're listening to on Spotify — instantly.</p>
           <button className="btn-spotify" onClick={handleLogin}>
             Connect with Spotify
@@ -153,7 +157,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <span className="logo">🎵 LyricLens</span>
+        <span className="logo">LyricLens</span>
         <div className="header-right">
           <label htmlFor="lang-select">Translate to:</label>
           <select
@@ -197,6 +201,27 @@ export default function App() {
                 </a>
                 <span className="track-artist">{track.artist}</span>
                 <span className="track-album">{track.album}</span>
+              </div>
+              <div className="playback-controls">
+                <button
+                  className="ctrl-btn"
+                  onClick={() => setPlayback('prev')}
+                  title="Previous"
+                >⏮</button>
+                <button
+                  className="ctrl-btn ctrl-main"
+                  onClick={() => {
+                    const action = isPlaying ? 'pause' : 'play';
+                    setPlayback(action);
+                    setIsPlaying(!isPlaying);
+                  }}
+                  title={isPlaying ? 'Pause' : 'Play'}
+                >{isPlaying ? '⏸' : '▶'}</button>
+                <button
+                  className="ctrl-btn"
+                  onClick={() => setPlayback('next')}
+                  title="Next"
+                >⏭</button>
               </div>
             </div>
 
